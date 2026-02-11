@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from jose import jwt, JWTError
 from datetime import timedelta,datetime,timezone
 
+
 router=APIRouter(
     prefix="/auth",
     tags=["Authentication"]
@@ -29,7 +30,7 @@ def get_db():
     finally:
         db.close()
 db_dependency=Annotated[Session, Depends(get_db)]
-oauth2_bearer=OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_bearer=OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 class CreateUserRequest(BaseModel):
@@ -41,7 +42,8 @@ class CreateUserRequest(BaseModel):
     role:str
 
 class Token(BaseModel):
-
+    access_token:str
+    token_type:str
 
 
 
