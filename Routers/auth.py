@@ -1,4 +1,5 @@
-from fastapi import APIRouter,Depends, HTTPException
+from fastapi import APIRouter,Request,Depends, HTTPException
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -16,6 +17,8 @@ router=APIRouter(
     prefix="/auth",
     tags=["Authentication"]
 )
+
+templates=Jinja2Templates(directory="templates")
 
 SECRET_KEY="hfn60ajwxnrxukc163csg8wciai0rngh9tmfblgr91x7gab7c1h20thb0lunras8"
 ALGORITHM="HS256"
@@ -75,6 +78,8 @@ async def get_current_user(token:Annotated[str,Depends(oauth2_bearer)]):
         return {"username":username,"user_id":user_id,"user_role":user_role}
     except JWTError:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Bu token geçersizdir.")
+
+
 @router.post("/token",response_model=Token)
 async def login_for_access_token(form_data:Annotated[OAuth2PasswordRequestForm, Depends()],db:db_dependency):
     user=authenticate_user(db=db,username=form_data.username,password=form_data.password)
@@ -83,6 +88,13 @@ async def login_for_access_token(form_data:Annotated[OAuth2PasswordRequestForm, 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="incorret username or password")
     token=create_access_token(user.username,user.id,user.role,timedelta(minutes=60))
     return {"access_token":token,"token_type":"bearer"}
+
+
+@router.get("/login_page")
+def render_login_page(request:Request):
+    return templates.TemplateResponse("login.html",{"request":request})
+
+
 @router.post("/",status_code=status.HTTP_201_CREATED)
 async def create_user(db:db_dependency,create_user_request:CreateUserRequest):
     user=User(
