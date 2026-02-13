@@ -5,8 +5,8 @@ from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from starlette import status
 
-from database import SessionLocal
-from models import User
+from ..database import SessionLocal
+from ..models import User
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
@@ -18,7 +18,7 @@ router=APIRouter(
     tags=["Authentication"]
 )
 
-templates=Jinja2Templates(directory="templates")
+templates=Jinja2Templates(directory="app/templates")
 
 SECRET_KEY="hfn60ajwxnrxukc163csg8wciai0rngh9tmfblgr91x7gab7c1h20thb0lunras8"
 ALGORITHM="HS256"
